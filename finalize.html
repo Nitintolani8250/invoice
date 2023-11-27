@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Itemized Invoice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: bold;
+
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 18px;
+/*      text-align: center;*/
+      margin-bottom: 5px;
+    }
+
+    p {
+      font-size: 14px;
+/*      text-align: center;*/
+      margin: 5px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    @media print {
+      body {
+        font-size: 12px;
+      }
+
+      /*h1, h2, h3, p, th, td {
+        text-align: center !important;
+        margin: 10px 0; /* Add space above and below */
+      }*/
+
+      table {
+        margin-top: 10px;
+      }
+
+      th, td {
+        border: 1px solid #ddd;
+        padding: 6px;
+        text-align: center !important; /* Center-align table content */
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Finalized Invoice Header -->
+  <div>
+  <h1>Azad Soap Factory</h1>
+  <p>O.T. Section, Khemani, Ulhasnagar, Maharastra - 421002</p>
+  <p>Phone: +91 9850 272767</p>
+  <p id="invoiceDate"></p>
+  <br>
+  <h3 id="customerName" style="text-align: left; font-weight: bold;"></h3> <!-- Left-align and bold -->
+  <br>
+</div>
+
+
+  <!-- Finalized Invoice Details -->
+  <p>Itemized Invoice</p>
+  <table id="finalizedInvoiceTable">
+    <thead>
+      <tr>
+        <th>Product Name</th>
+        <th>Quantity</th>
+        <th>Total Cost</th>
+      </tr>
+    </thead>
+    <tbody id="finalizedProductDetails">
+      <!-- Invoice details will be inserted here dynamically -->
+    </tbody>
+  </table>
+  <br>
+  <p><strong>Total Invoice Amount:</strong> $<span id="finalizedTotalAmount">0.00</span></p>
+  <br>
+  <p>Thank you for your business.</p>
+  <p>Find all our products on our whatsapp page.</p>
+
+
+<script>
+  // Retrieve invoice details from session storage
+  var products = JSON.parse(sessionStorage.getItem('invoiceProducts')) || [];
+  var totalAmount = 0;
+
+// Retrieve date and customer name from session storage
+  var invoiceDate = sessionStorage.getItem('invoiceDate');
+  var customerName = sessionStorage.getItem('customerName');
+
+// Display date and customer name
+  document.getElementById("invoiceDate").innerHTML = "Date: " + invoiceDate;
+  document.getElementById("customerName").innerHTML = "Customer: " + customerName;
+
+  // Display finalized invoice details
+  var finalizedInvoiceTable = document.getElementById("finalizedInvoiceTable");
+  var tbody = document.getElementById("finalizedProductDetails");
+
+  for (var i = 0; i < products.length; i++) {
+    var product = products[i];
+    var totalCost = (product.cost * product.quantity).toFixed(2);
+
+    // Create a new row
+    var row = tbody.insertRow(i);
+    var cell1 = row.insertCell(0);
+    var cell2 = row.insertCell(1);
+    var cell3 = row.insertCell(2);
+
+    // Set cell content
+    cell1.innerHTML = product.name;
+    cell2.innerHTML = product.quantity;
+    cell3.innerHTML = "$" + totalCost;
+
+    totalAmount += parseFloat(totalCost);
+  }
+
+  document.getElementById("finalizedTotalAmount").innerHTML = totalAmount.toFixed(2);
+</script>
+
+</body>
+</html>

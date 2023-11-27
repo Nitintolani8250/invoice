@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #f2f2f2;
+      padding: 10px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    h3 {
+      font-size: 18px;
+      margin: 5px 0;
+    }
+
+    p {
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
+    #invoiceHeader {
+      text-align: center;
+    }
+
+    #inputForm {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+	#dateSection,
+    #customerNameSection,
+    #productSection {
+      width: 100%;
+    }
+    #productName,
+    #productCost,
+    #productQuantity,
+    #datepicker,
+    #customerName {
+      width: calc(33.33% - 10px);
+    }
+
+    #addProductBtn {
+      margin-left: 10px;
+    }
+
+    #addedProducts {
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    #finalizeBtn {
+      margin-top: 20px;
+      text-align: right;
+    }
+
+    @media print {
+      /* Styles for print */
+      body {
+        font-size: 12px;
+      }
+
+      h1, h3, p {
+        text-align: left;
+        margin: 0;
+      }
+
+      table {
+        margin-top: 10px;
+      }
+
+      th, td {
+        border: 1px solid #ddd;
+        padding: 6px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Factory Outlet Invoice Generation</h1>
+
+  </header>
+
+  <!-- Input Form -->
+  <div id="inputForm">
+    <!-- Date Section -->
+    <div id="dateSection">
+      <h2>Date</h2>
+      <label for="datepicker">Date:</label>
+      <input type="date" id="datepicker" value="<?php echo date('Y-m-d'); ?>" required>
+    </div>
+
+    <!-- Customer Name Section -->
+    <div id="customerNameSection">
+      <h2>Customer Name</h2>
+      <label for="customerName">Customer Name:</label>
+      <input type="text" id="customerName">
+    </div>
+
+    <!-- Product Section -->
+    <div id="productSection">
+      <h2>Add Product</h2>
+      <div>
+        <label for="productName">Product Name:</label>
+        <select id="productName" required>
+          <option value="" disabled selected>Select a product</option>
+          <option value="Soap">Soap</option>
+          <option value="Shampoo">Shampoo</option>
+          <option value="Detergent">Detergent</option>
+          <!-- Add more products as needed -->
+        </select>
+      </div>
+      <div>
+        <label for="productCost">Product Cost:</label>
+        <input type="number" id="productCost" min="0" step="0.01" required>
+      </div>
+      <div>
+        <label for="productQuantity">Product Quantity:</label>
+        <input type="number" id="productQuantity" min="1" required>
+      </div>
+      <button type="button" onclick="addProduct()" id="addProductBtn">Add Product</button>
+    </div>
+  </div>
+
+  <!-- Added Products Display -->
+  <div id="addedProducts">
+    <h2>Added Products</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Product Name</th>
+          <th>Quantity</th>
+          <th>Total Cost</th>
+        </tr>
+      </thead>
+      <tbody id="addedProductsList">
+        <!-- Added products will be inserted here dynamically -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Finalize Button -->
+  <div id="finalizeBtn">
+    <button type="button" onclick="finalizeInvoice()">Finalize Invoice</button>
+  </div>
+
+  <script>
+    var products = [];
+
+    function addProduct() {
+      // Get input values
+      var productName = document.getElementById("productName").value;
+      var productCost = parseFloat(document.getElementById("productCost").value);
+      var productQuantity = parseInt(document.getElementById("productQuantity").value);
+
+      // Validate input
+      if (productName === "" || isNaN(productCost) || isNaN(productQuantity)) {
+        alert("Please enter valid product details.");
+        return;
+      }
+
+      // Add product to the list
+      products.push({
+        name: productName,
+        cost: productCost,
+        quantity: productQuantity
+      });
+
+      // Clear input fields
+      document.getElementById("productName").value = "";
+      document.getElementById("productCost").value = "";
+      document.getElementById("productQuantity").value = "";
+
+      // Update added products display
+      updateAddedProductsDisplay();
+
+      // Hide the invoice display
+      document.getElementById("invoiceDisplay").style.display = "none";
+    }
+
+    function updateAddedProductsDisplay() {
+      var addedProductsList = document.getElementById("addedProductsList");
+      var totalAmount = 0;
+
+      // Clear previous data
+      addedProductsList.innerHTML = "";
+
+      for (var i = 0; i < products.length; i++) {
+        var product = products[i];
+        var totalCost = (product.cost * product.quantity).toFixed(2);
+
+        // Create a new row
+        var row = addedProductsList.insertRow(i);
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+
+        // Set cell content
+        cell1.innerHTML = product.name;
+        cell2.innerHTML = product.quantity;
+        cell3.innerHTML = "$" + totalCost;
+
+        totalAmount += parseFloat(totalCost);
+      }
+
+      document.getElementById("totalAmount").innerHTML = totalAmount.toFixed(2);
+      document.getElementById("addedProducts").style.display = "block";
+    }
+
+    function finalizeInvoice() {
+    // Store the products data in session storage
+    sessionStorage.setItem('invoiceProducts', JSON.stringify(products));
+    sessionStorage.setItem('invoiceDate', document.getElementById('datepicker').value);
+    sessionStorage.setItem('customerName', document.getElementById('customerName').value);
+
+    // Redirect to the new page
+    window.location.href = "finalize.html";
+  }
+  </script>
+
+</body>
+</html>
